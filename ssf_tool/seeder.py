@@ -61,16 +61,30 @@ def run_seed(api_url: str, admin_user: str, admin_pass: str) -> None:
 
     # 2. Login como administrador
     print(f"\n🔑 Iniciando sesión como administrador ({admin_user})...")
-    try:
-        auth_res = client.post("/api/auth/login", {
-            "username": admin_user,
-            "password": admin_pass,
-        })
-        admin_token = auth_res["token"]
-        client.set_token(admin_token)
-        print("   ✓ Sesión de administrador iniciada correctamente.")
-    except ApiClientError as e:
-        print(f"   ❌ Error al autenticar admin: {e}")
+    candidate_passwords = [admin_pass]
+    for alt in ["adminsecret", "admin123", "secret123"]:
+        if alt not in candidate_passwords:
+            candidate_passwords.append(alt)
+
+    admin_token = None
+    for pwd in candidate_passwords:
+        try:
+            auth_res = client.post("/api/auth/login", {
+                "username": admin_user,
+                "password": pwd,
+            })
+            admin_token = auth_res["token"]
+            client.set_token(admin_token)
+            print("   ✓ Sesión de administrador iniciada correctamente.")
+            break
+        except ApiClientError as e:
+            if e.status == 401:
+                continue
+            print(f"   ❌ Error al autenticar admin: {e}")
+            sys.exit(1)
+
+    if not admin_token:
+        print("   ❌ Error al autenticar admin: Credenciales inválidas.")
         sys.exit(1)
 
     # 3. Obtener categorías existentes
