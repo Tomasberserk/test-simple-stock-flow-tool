@@ -1,45 +1,39 @@
-# test-simple-stock-flow-tool
+# Simple Stock Flow — Tool (Sembrador de Demostración)
 
-> **Prueba técnica · Ficha ADSO 3413974**
-> Horario: de **9:00 a. m. a 3:00 p. m.** (15:00)
+Utilidad CLI en Python para el sembrado automatizado e idempotente de datos de prueba en **Simple Stock Flow**.
 
-Este repositorio guarda las **utilidades** de *Simple Stock Flow*: el sembrador de datos de demostración, que usa la API. **Empieza vacío a propósito**: se construye en el fork de cada aprendiz.
+---
 
-## Instrucciones
+## 📌 Principio de Diseño
 
-Cada aprendiz debe **crear el fork** de los seis repositorios del proyecto y **resolver el proyecto
-con el spec planteado**.
+Siguiendo el mandato de la Arquitectura Onion y el spec de la prueba técnica:
+- **`tool` es un cliente HTTP puro**: se comunica exclusivamente a través de los endpoints públicos de la API HTTP.
+- **Cero dependencias externas**: construido exclusivamente con la librería estándar de Python (`urllib`, `argparse`, `json`).
+- **No toca la base de datos**: jamás se conecta directamente a MySQL. Toda regla de negocio (validaciones, invariantes, unicidad, transacciones atómicas) es verificada por la API.
+- **Idempotente**: ejecutarlo múltiples veces no duplica productos ni corrompe el inventario existente.
 
-1. Hacer fork, a su cuenta de GitHub, de cada repositorio de la tabla del final.
-2. Leer el spec en [`test-simple-stock-flow-docs`](https://github.com/code-sena/test-simple-stock-flow-docs).
-   Se entrega en dos versiones: `spec-python/` y `spec-.net/`.
-3. Desarrollar en los forks.
+---
 
-## El reto se desarrolla con React y PHP (Laravel)
+## 🚀 Uso
 
-El spec está escrito para Python y para .NET, pero el reto **no** se hace en esos lenguajes:
+```bash
+# Ejecutar sembrado con valores por defecto (http://localhost:8000)
+python -m ssf_tool seed
 
-| Capa | Tecnología del reto |
-|---|---|
-| Frontend | React |
-| Backend | PHP con Laravel |
+# O especificando opciones personalizadas
+python -m ssf_tool seed --api-url http://localhost:8000 --admin-user admin --admin-pass admin123
+```
 
-Lo que el spec define sobre el negocio —historias, criterios de aceptación, reglas, contrato de la
-API, modelo de datos— se respeta. Lo que define sobre la tecnología se traduce a React y Laravel.
+### Variables de Entorno Soportadas
 
-## La prueba no consiste en escribir el código
+- `API_BASE_URL`: URL base de la API (por defecto: `http://localhost:8000`)
+- `ADMIN_USERNAME` / `ADMIN_EMAIL`: Usuario administrador (por defecto: `admin`)
+- `ADMIN_PASSWORD`: Contraseña de administrador (por defecto: `admin123`)
 
-El propósito principal es ver la **capacidad de desempeño con SDD** (*Spec-Driven Development*,
-desarrollo guiado por especificación): cómo se lee, se interpreta y se aplica una especificación
-para llevarla a un stack distinto. El código es el medio, no el fin.
+---
 
-## Los seis repositorios
+## 🧪 Pruebas Unitarias
 
-| Repositorio | Qué va ahí |
-|---|---|
-| [`test-simple-stock-flow-docs`](https://github.com/code-sena/test-simple-stock-flow-docs) | El spec: `spec-python/` y `spec-.net/` |
-| [`test-simple-stock-flow-api`](https://github.com/code-sena/test-simple-stock-flow-api) | Backend en PHP (Laravel) |
-| [`test-simple-stock-flow-app`](https://github.com/code-sena/test-simple-stock-flow-app) | Frontend en React |
-| [`test-simple-stock-flow-page`](https://github.com/code-sena/test-simple-stock-flow-page) | Sitio público estático de presentación |
-| [`test-simple-stock-flow-infra`](https://github.com/code-sena/test-simple-stock-flow-infra) | Contenedores, red, volúmenes y motor de base de datos vacío |
-| [`test-simple-stock-flow-tool`](https://github.com/code-sena/test-simple-stock-flow-tool) | Utilidades: sembrador de datos de demostración |
+```bash
+python -m unittest discover tests
+```
